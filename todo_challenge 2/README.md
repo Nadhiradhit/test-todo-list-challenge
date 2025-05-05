@@ -7,14 +7,11 @@
 
 ## New Feature: Filter Incomplete Tasks
 
-Alana = Add filter to render all task, incomplete and completed task
+- Alana = Add filter to render all task, incomplete and completed task
 
 ## Task Division
 
-- Alice: Bug 1
-- Bob: Bug 2
-- Carol: Feature
-
+- Alana : Filter Task
 
 Kalian mendapatkan proyek To-Do List Web App dari client. Saat ini, aplikasi masih memiliki beberapa bug dan belum memiliki fitur filter task.
 Dalam waktu 1 jam, kerjakan bersama dalam tim:
