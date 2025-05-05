@@ -1,56 +1,65 @@
 const taskInput = document.getElementById("taskInput");
 const taskList = document.getElementById("taskList");
-let tasks = [];
-let currentFilter = 'all'; //default filter
+const filter = document.getElementById("filter");
+let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
 
-// load tasks from local storage
-document.addEventListener('DOMContentLoaded', loadTasksFromLocalStorage);
+function saveTasks() {
+	localStorage.setItem('tasks', JSON.stringify(tasks));
+}
 
 function addTask() {
-	const taskText = taskInput.value;
+	const taskText = taskInput.value.trim();
 	if (taskText === "") return;
 
 	const task = {
-		id: Date.now(), //id unik untuk task
 		text: taskText,
 		completed: false,
-		createdAt: new Date(), 
+		createdAt: new Date(),
+		completedAt: null
 	};
 
 	tasks.push(task);
-	saveTasksToLocalStorage(); //implementasi function saveTasksToLocalStorage
+	taskInput.value = "";
+	saveTasks();
 	renderTasks();
-	taskInput.value = ""; // menambahkan input reset setelah masuk task
 }
 
 function renderTasks() {
 	taskList.innerHTML = "";
-	tasks.forEach((task, index) => {
-		const li = document.createElement("li");
-		li.textContent = task.text; 
-		if ((task.completed === true)) { //memperbaiki operator perbandingan = menjadi ===
-			li.style.textDecoration = "line-through";
-		}
+	const currentFilter = filter.value;
 
-		li.addEventListener("click", () => toggleTask(index));
+	const filteredTasks = tasks
+		.map((task, originalIndex) => ({ task, originalIndex }))
+		.filter(({ task }) => {
+			if (currentFilter === 'completed') return task.completed;
+			if (currentFilter === 'uncompleted') return !task.completed;
+			return true;
+		});
+
+	filteredTasks.forEach(({ task, originalIndex }) => {
+		const li = document.createElement("li");
+		const container = document.createElement("div");
+		container.className = "task-container";
+
+		// Checkbox
+		const checkbox = document.createElement("input");
+		checkbox.type = "checkbox";
+		checkbox.checked = task.completed;
+		checkbox.addEventListener("change", () => toggleTask(originalIndex));
+
+		// Task text
+		const textSpan = document.createElement("span");
+		textSpan.className = "task-text";
+		textSpan.textContent = task.text;
+		textSpan.style.textDecoration = task.completed ? "line-through" : "none";
+		textSpan.classList.toggle("completed", task.completed);
+
+		container.appendChild(checkbox);
+		container.appendChild(textSpan);
+		li.appendChild(container);
 		taskList.appendChild(li);
 	});
 }
 
-function toggleTask(index) {
-	tasks[index].completed = !tasks[index].completed;
-	renderTasks();
-}
-
-function saveTasksToLocalStorage(){
-	localStorage.setItem('tasks', JSON.stringify(tasks));
-}
-
-function loadTasksFromLocalStorage(){
-	const saveTasks = localStorage.getItem('tasks');
-	
-	if (saveTasks){
-		tasks = JSON.parse(saveTasks);
-		renderTasks();
-	}
-}
+// Initial load
+renderTasks();
